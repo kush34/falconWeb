@@ -5,7 +5,9 @@ import { useNavigate } from 'react-router-dom';
 
 const Tickets = () => {
   const [tickets,setTickets] = useState([]);
+  const [editableTickets,setEditableTickets] = useState([]);
   const [error,setError] = useState();
+  const [editFlag,setEditFlag] = useState(false);
   const navigate = useNavigate();
   const getTickets = async ()=>{
     
@@ -17,8 +19,24 @@ const Tickets = () => {
         console.error('Error fetching tickets:', error)
       } else {
         setTickets(data)  
+        setEditableTickets(data)
       }
   }
+const updateRow = async (id, amount, ticket_status) => {
+  const { data, error } = await supabase
+    .from("tickets")
+    .update({ amount, ticket_status })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Update failed:", error.message);
+  } else {
+    console.log("Updated:", data);
+    setEditFlag(false);
+    getTickets(); // Refresh list
+  }
+};
+
 const statusColor = {
   "pending": "bg-yellow-600",
   "approved": "bg-green-600",
@@ -41,22 +59,68 @@ const statusColor = {
       <div className='flex justify-center'>
         <div className='flex w-full flex-col'>
           <div className='flex mb-4'>
-            <div className='w-1/3'>Type</div>
-            <div className='w-1/3'>Amount</div>
-            <div className='w-1/3'>Status</div>
+            <div className='w-1/4'>Type</div>
+            <div className='w-1/4'>Amount</div>
+            <div className='w-1/4'>Status</div>
+            <div className='w-1/4'>Transaciton ID</div>
           </div>
-        {tickets.length>0 && tickets.map((ticket,index) => (
+        {editableTickets.length>0 && editableTickets.map((ticket,index) => (
           <div key={ticket.id} className={`w-full flex justify-around ${index%2 == 0 && "bg-[#22324c]"} p-3 rounded`}>
-            <div className='w-1/3'>
-              {ticket.type} 
+            <div className='w-1/4'>
+               
+              <input 
+              type="text" 
+              className='text-center' 
+              value={ticket.type} name="" id="" readOnly/>
             </div>
-            <div className='w-1/3'>
-              {ticket.amount}
+            <div className='w-1/4'>
+             <input 
+                type="text"
+                className='text-center'
+                value={ticket.amount}
+                onChange={(e) => {
+                  const updated = [...editableTickets];
+                  updated[index].amount = e.target.value;
+                  setEditableTickets(updated);
+                  setEditFlag(true);
+                }}
+              />
+
             </div>
-            <div className={` w-1/3 font-bold flex justify-center`}>
+            <div className='flex justify-center w-1/4'>
+              {ticket.transaction_id}
+            </div>
+
+            <div className={` w-1/4 font-bold flex justify-center`}>
               <div className={`${statusColor[ticket.ticket_status] || "bg-gray-500"} px-2 py-1 w-1/2 rounded text-white`}>
-                {ticket.ticket_status}
+                <select
+                className="text-center px-2 py-1 rounded text-black w-full"
+                value={ticket.ticket_status}
+                onChange={(e) => {
+                  const updated = [...editableTickets];
+                  updated[index].ticket_status = e.target.value;
+                  setEditableTickets(updated);
+                  setEditFlag(true);
+                }}
+              >
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+
               </div>
+            </div>
+            <div className='ml-2'>
+                  {editFlag && (
+                    <button
+                      onClick={() =>
+                        updateRow(ticket.id, ticket.amount, ticket.ticket_status)
+                      }
+                      className="bg-blue-500 text-white px-3 py-1 rounded"
+                    >
+                      Update
+                    </button>
+                  )}
             </div>
           </div>
         ))}
