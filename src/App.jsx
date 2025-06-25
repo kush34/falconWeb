@@ -4,6 +4,8 @@ import { useUser } from './context/UserContext'
 import { useNavigate } from 'react-router-dom';
 import {Tag} from 'lucide-react'
 import {User} from 'lucide-react'
+import { ChartCandlestick } from 'lucide-react';
+import { Layers } from 'lucide-react';
 
 function App() {
   const navigate = useNavigate();
@@ -43,6 +45,22 @@ useEffect(() => {
               </div>
               <div>
                   Users
+              </div>
+            </div>
+            <div className='text-xl bg-[#22324c] rounded w-1/4 h-12 justify-center font-medium flex items-center gap-2 cursor-pointer' onClick={()=>navigate("/trade")}>
+              <div className="icon">
+                <ChartCandlestick />
+              </div>
+              <div>
+                  Trade
+              </div>
+            </div>
+            <div className='text-xl bg-[#22324c] rounded w-1/4 h-12 justify-center font-medium flex items-center gap-2 cursor-pointer' onClick={()=>navigate("/assests")}>
+              <div className="icon">
+                 <Layers />
+              </div>
+              <div>
+                  Assests
               </div>
             </div>
     </div>

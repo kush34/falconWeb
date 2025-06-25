@@ -9,6 +9,8 @@ import Login from "./Pages/Login";
 import { UserContextProvider } from "./context/UserContext";
 import "./index.css"
 import ProtectedRoute from "./components/Protected";
+import Trade from "./Pages/Trade";
+import Assests from "./Pages/Assests";
 const root = document.getElementById("root");
 
 ReactDOM.createRoot(root).render(
@@ -40,6 +42,22 @@ ReactDOM.createRoot(root).render(
           element={
             <ProtectedRoute requiredRole="admin">
               <Users />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/trade"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Trade />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/assests"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Assests />
             </ProtectedRoute>
           }
         />
