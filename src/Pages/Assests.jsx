@@ -3,8 +3,25 @@ import { X } from 'lucide-react';
 import { supabase } from '../lib/Supabase';
 import { useNavigate } from 'react-router-dom';
 
+
+/*
+CHANGES TO BE MADE
+
+
+  -------IMPORTANT------
+
+  add row to edit   
+    1) change_percent
+    2) change_amount
+    3) trend
+
+**********IMPORTANT**********
+  
+
+Add a Way to add assest to the DB LATER
+*/
 const Assests = () => {
-  const [assests,setAssests] = useState([]);
+  const [assets,setAssets] = useState([]);
   const [loading,setLoading] = useState();
   const navigate = useNavigate();
   const [error ,setError] = useState("");
@@ -16,7 +33,7 @@ const Assests = () => {
     if (error) {
       console.error('Error fetching assets:', error)
     } else {
-      setAssests(data);
+      setAssets(data);
       setEditableAssets(data); // Create editable copy
     }
   };
@@ -28,7 +45,7 @@ const Assests = () => {
     }
     const { data, error } = await supabase
       .from("asset")
-      .update({ assest_name: name, assest_price: price })
+      .update({ asset_name: name, asset_price: price })
       .eq("id", id);
 
     if (error) {
@@ -49,8 +66,8 @@ const Assests = () => {
       .from("asset")
       .insert([
         {
-          assest_name: name,
-          assest_price: price,
+          asset_name: name,
+          asset_price: price,
         },
       ]);
 
@@ -100,15 +117,15 @@ const Assests = () => {
               <div className='w-1/2'>Asset Name</div>
               <div className='w-1/2'>Asset Price</div>
             </div>
-            {editableAssets.map((assest, index) => (
-              <div key={assest.id} className={`flex justify-between mb-2 ${index%2 ==0 && "bg-[#22324c]"} rounded`}>
+            {editableAssets.map((asset, index) => (
+              <div key={asset.id} className={`flex justify-between mb-2 ${index%2 ==0 && "bg-[#22324c]"} rounded`}>
                 <div className='w-1/2 flex justify-center border'>
                   <input
                     type="text"
-                    value={assest.assest_name}
+                    value={asset.asset_name}
                     onChange={(e) => {
                       const updated = [...editableAssets];
-                      updated[index].assest_name = e.target.value;
+                      updated[index].asset_name = e.target.value;
                       setEditableAssets(updated);
                       setEditFlag(true);
                     }}
@@ -118,10 +135,10 @@ const Assests = () => {
                 <div className='w-1/2'>
                   <input
                     type="text"
-                    value={assest.assest_price}
+                    value={asset.asset_price}
                     onChange={(e) => {
                       const updated = [...editableAssets];
-                      updated[index].assest_price = e.target.value;
+                      updated[index].asset_price = e.target.value;
                       setEditableAssets(updated);
                       setEditFlag(true);
                     }}
@@ -132,7 +149,7 @@ const Assests = () => {
                   {editFlag && (
                     <button
                       onClick={() =>
-                        updateRow(assest.id, assest.assest_name, assest.assest_price)
+                        updateRow(asset.id, asset.asset_name, asset.asset_price)
                       }
                       className="bg-blue-500 text-white px-3 py-1 rounded"
                     >
