@@ -38,14 +38,14 @@ const Assests = () => {
     }
   };
 
-  const updateRow = async (id, name, price) => {
+  const updateRow = async (id, name, price,price_change,change_percent,trend) => {
     if (!name || !price) {
       setError("Please fill all fields");
       return;
     }
     const { data, error } = await supabase
       .from("asset")
-      .update({ asset_name: name, asset_price: price })
+      .update({ asset_name: name, asset_price: price,price_change,change_percent,trend})
       .eq("id", id);
 
     if (error) {
@@ -113,13 +113,16 @@ const Assests = () => {
           </div>
         }
         <div className='w-full p-5'>
-            <div className='flex'>
-              <div className='w-1/2'>Asset Name</div>
-              <div className='w-1/2'>Asset Price</div>
+            <div className='flex mb-4'>
+              <div className='w-1/5 text-center text-xl font-semibold '>Asset Name</div>
+              <div className='w-1/5 text-center text-xl font-semibold '>Asset Price</div>
+              <div className='w-1/5 text-center text-xl font-semibold '>Price Change</div>
+              <div className='w-1/5 text-center text-xl font-semibold '>Change Percent</div>
+              <div className='w-1/5 text-center text-xl font-semibold '>Trend</div>
             </div>
             {editableAssets.map((asset, index) => (
               <div key={asset.id} className={`flex justify-between mb-2 ${index%2 ==0 && "bg-[#22324c]"} rounded`}>
-                <div className='w-1/2 flex justify-center border'>
+                <div className='w-1/6 flex justify-center'>
                   <input
                     type="text"
                     value={asset.asset_name}
@@ -132,7 +135,7 @@ const Assests = () => {
                     className="w-full text-center px-2 py-1"
                   />
                 </div>
-                <div className='w-1/2'>
+                <div className='w-1/6'>
                   <input
                     type="text"
                     value={asset.asset_price}
@@ -145,18 +148,60 @@ const Assests = () => {
                     className="w-full px-2 py-1 text-center"
                   />
                 </div>
+                <div className='w-1/6'>
+                  <input
+                    type="text"
+                    value={asset.price_change}
+                    onChange={(e) => {
+                      const updated = [...editableAssets];
+                      updated[index].price_change = e.target.value;
+                      setEditableAssets(updated);
+                      setEditFlag(true);
+                    }}
+                    className="w-full px-2 py-1 text-center"
+                  />
+                </div>
+                <div className='w-1/6'>
+                  <input
+                    type="text"
+                    value={asset.change_percent}
+                    onChange={(e) => {
+                      const updated = [...editableAssets];
+                      updated[index].change_percent = e.target.value;
+                      setEditableAssets(updated);
+                      setEditFlag(true);
+                    }}
+                    className="w-full px-2 py-1 text-center"
+                  />
+                </div>
+                <div className='w-1/6'>
+                  <select
+                className="text-center px-2 py-1 rounded w-full"
+                value={asset.trend}
+                onChange={(e) => {
+                  const updated = [...editableAssets];
+                  updated[index].trend = e.target.value;
+                  setEditableAssets(updated);
+                  setEditFlag(true);
+                }}
+              >
+                <option className='text-black rounded' value="UP">Up</option>
+                <option className='text-black rounded' value="DOWN">Down</option>
+              </select>
+
+                </div>
                 <div className='ml-2'>
                   {editFlag && (
                     <button
                       onClick={() =>
-                        updateRow(asset.id, asset.asset_name, asset.asset_price)
+                        updateRow(asset.id, asset.asset_name, asset.asset_price,asset.price_change,asset.change_percent,asset.trend)
                       }
                       className="bg-blue-500 text-white px-3 py-1 rounded"
                     >
                       Update
                     </button>
-      )}
-    </div>
+                  )}
+                </div>
   </div>
 ))}
         </div>

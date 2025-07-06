@@ -3,11 +3,12 @@ import React, { useEffect, useState } from 'react'
 import { supabase } from '../lib/Supabase';
 import { useNavigate } from 'react-router-dom';
 import PopUp from '../components/PopUp';
+import { X } from 'lucide-react';
 
 const Tickets = () => {
   const [tickets,setTickets] = useState([]);
   const [editableTickets,setEditableTickets] = useState([]);
-  const [error,setError] = useState();
+  const [error,setError] = useState("");
   const [selectedTicket,setSelectedTicket] = useState();
   const [showPopup, setShowPopup] = useState(false);
   const [editFlag,setEditFlag] = useState(false);
@@ -42,6 +43,10 @@ const Tickets = () => {
       }
   }
 const updateRow = async (id, amount, ticket_status) => {
+  if(!id || !amount || !ticket_status){
+    setError("Pls fill all fields");
+    return;
+  }
   const { data, error } = await supabase
     .from("tickets")
     .update({ amount, ticket_status })
@@ -49,6 +54,7 @@ const updateRow = async (id, amount, ticket_status) => {
 
   if (error) {
     console.error("Update failed:", error.message);
+    setError(`Updated Failed: ${error.message}`);
   } else {
     console.log("Updated:", data);
     setEditFlag(false);
@@ -74,6 +80,18 @@ const statusColor = {
         <div className="bacck">
           <button className='bg-[#22324c] px-3 py-1 rounded text-white cursor-pointer' onClick={()=>navigate("/")}>Back</button>
         </div>
+      </div>
+      <div>
+        {error &&
+          <div className='bg-red-500 text-white flex justify-center gap-10 px-4 py-2 rounded mx-5'>
+            <div>
+              {error}
+            </div>
+            <div className="close">
+              <button onClick={()=>setError("")}> <X /></button>
+            </div>
+          </div>
+        }
       </div>
       <div className='flex justify-center'>
         <div className='flex w-full flex-col'>
