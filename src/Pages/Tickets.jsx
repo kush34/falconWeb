@@ -2,18 +2,37 @@ import { SupabaseAuthClient } from '@supabase/supabase-js/dist/module/lib/Supaba
 import React, { useEffect, useState } from 'react'
 import { supabase } from '../lib/Supabase';
 import { useNavigate } from 'react-router-dom';
+import PopUp from '../components/PopUp';
 
 const Tickets = () => {
   const [tickets,setTickets] = useState([]);
   const [editableTickets,setEditableTickets] = useState([]);
   const [error,setError] = useState();
+  const [selectedTicket,setSelectedTicket] = useState();
+  const [showPopup, setShowPopup] = useState(false);
   const [editFlag,setEditFlag] = useState(false);
   const navigate = useNavigate();
   const getTickets = async ()=>{
     
     const {data , error} = await supabase
     .from("tickets")
-    .select("*");
+    .select(`
+      type,
+      amount,
+      ticket_status,
+      transaction_id,
+      account_number,
+      account_name,
+      ifsc_code,
+      upi_id,
+      is_upi,
+      phone,
+      id,
+      profiles:user_id (
+      id,
+      username
+    )
+      `);
 
     if (error) {
         console.error('Error fetching tickets:', error)
@@ -59,21 +78,30 @@ const statusColor = {
       <div className='flex justify-center'>
         <div className='flex w-full flex-col'>
           <div className='flex mb-4'>
-            <div className='w-1/4'>Type</div>
-            <div className='w-1/4'>Amount</div>
-            <div className='w-1/4'>Status</div>
-            <div className='w-1/4'>Transaciton ID</div>
+            <div className='w-1/7'>Username</div>
+            <div className='w-1/7'>Id</div>
+            <div className='w-1/7'>Type</div>
+            <div className='w-1/7'>Amount</div>
+            <div className='w-1/7'>Transaciton ID</div>
+            <div className='w-1/7'>Status</div>
+            <div className='w-1/7'>View</div>
           </div>
         {editableTickets.length>0 && editableTickets.map((ticket,index) => (
           <div key={ticket.id} className={`w-full flex justify-around ${index%2 == 0 && "bg-[#22324c]"} p-3 rounded`}>
-            <div className='w-1/4'>
+            <div className="w-1/7">
+              {ticket.profiles.username}
+            </div>
+            <div className="w-1/7 overflow-hidden">
+              {ticket.profiles?.id.slice(0, 6)}
+            </div>
+            <div className='w-1/7'>
                
               <input 
               type="text" 
               className='text-center' 
               value={ticket.type} name="" id="" readOnly/>
             </div>
-            <div className='w-1/4'>
+            <div className='w-1/7'>
              <input 
                 type="text"
                 className='text-center'
@@ -87,11 +115,11 @@ const statusColor = {
               />
 
             </div>
-            <div className='flex justify-center w-1/4'>
-              {ticket.transaction_id}
+            <div className='flex justify-center w-1/7'>
+              {ticket.transaction_id || "N/A"}
             </div>
 
-            <div className={` w-1/4 font-bold flex justify-center`}>
+            <div className={` w-1/7 font-bold flex justify-center`}>
               <div className={`${statusColor[ticket.ticket_status] || "bg-gray-500"} px-2 py-1 w-1/2 rounded text-white`}>
                 <select
                 className="text-center px-2 py-1 rounded text-black w-full"
@@ -110,6 +138,12 @@ const statusColor = {
 
               </div>
             </div>
+            <div className="w-1/7 view-btn flex items-center justify-center">
+              <button onClick={()=>{
+                setSelectedTicket(ticket)
+                setShowPopup(true); 
+                }}>View</button>
+            </div>
             <div className='ml-2'>
                   {editFlag && (
                     <button
@@ -126,6 +160,9 @@ const statusColor = {
         ))}
       </div>
       </div>
+      {showPopup &&
+      <PopUp ticket={selectedTicket} setShowPopup ={setShowPopup} showPopup={showPopup}/>
+      }
     </div>
   )
 }
